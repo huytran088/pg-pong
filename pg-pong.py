@@ -1,6 +1,6 @@
 """ Trains an agent with (stochastic) Policy Gradients on Pong. Uses OpenAI Gym. """
 import numpy as np
-import _pickle as pickle
+import _pickle as pickle #old code: import cPickle as pickle
 import gym
 
 # hyperparameters
@@ -22,7 +22,9 @@ else:
   #H is the number of hidden layer nurons, D is dimensionality of the grid
   model['W2'] = np.random.randn(H) / np.sqrt(H)
 #both grad_buffer and rmsprop_cache are initialized to 0s
+#old code: grad_buffer = [ k:np.zeros_like(v) for k,v in model.iteritems()]
 grad_buffer = { k : np.zeros_like(v) for k,v in model.items() } # update buffers that add up gradients over a batch
+#old code: rmsprop_cache = [ k:np.zeros_like(v) for k,v in model.iteritems()]
 rmsprop_cache = { k : np.zeros_like(v) for k,v in model.items() } # rmsprop memory
 
 def sigmoid(x):
@@ -41,6 +43,7 @@ def discount_rewards(r):
   """ take 1D float array of rewards and compute discounted reward """
   discounted_r = np.zeros_like(r)
   running_add = 0 #sum of the reward
+  #old code: for t in reversed(xrange(0,f.size)):
   for t in reversed(range(0, r.size)):
     if r[t] != 0: running_add = 0 # reset the sum, since this was a game boundary (pong specific!)
     running_add = running_add * gamma + r[t] #increment sum weight the reward exponentially because we focus on the current reward instead of future reward
@@ -116,6 +119,7 @@ while True:
 
     # perform rmsprop parameter update every batch_size episodes
     if episode_number % batch_size == 0:
+      #old code: for k,v in model.iteritems() 
       for k,v in model.items():
         g = grad_buffer[k] # gradient
         rmsprop_cache[k] = decay_rate * rmsprop_cache[k] + (1 - decay_rate) * g**2 #RMS propogatio formula
@@ -124,6 +128,7 @@ while True:
 
     # boring book-keeping
     running_reward = reward_sum if running_reward is None else running_reward * 0.99 + reward_sum * 0.01
+    #old code: print 'resetting env.espisode reward total was %f. running mean : %f' % (reward_sum, running_reward)
     print ('resetting env. episode reward total was %f. running mean: %f' % (reward_sum, running_reward))
     if episode_number % 100 == 0: pickle.dump(model, open('save.p', 'wb'))
     reward_sum = 0
@@ -131,4 +136,5 @@ while True:
     prev_x = None
 
   if reward != 0: # Pong has either +1 or -1 reward exactly when game ends.
+    #old code:  print 'ep %d: game finished, reward: %f' % (episode_number, reward) + '' if reward == -1 else ' !!!!!!!!'
     print ('ep %d: game finished, reward: %f' % (episode_number, reward), '' if reward == -1 else ' !!!!!!!!')
